@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
- 
+
 import socket
 from echo_stt import *
 
-id = "rabbit"
- 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host, port))
-s.send("CID " + id)
+s.send("CONNECT")
 result = s.recv(1024)
 print result
 life = True

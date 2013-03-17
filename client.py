@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import socket
-from echo_stt import *
+from settings import *
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host, port))

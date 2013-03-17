@@ -12,7 +12,9 @@ print result
 life = True
 while life:
     buf = raw_input(">>")
-    if buf.startswith("CID "):
+    if buf == "":
+        print("Нечего отправлять :(")
+    elif buf == "CONNECT":
         print("Запрещено.")
     else:
         s.send(buf)

@@ -19,17 +19,17 @@ if not os.path.exists(data_path):
 id = 0;
 name = "Anonim"
 
+#
+sms = "Starting on host " + str(host) + " at port " + str(port)
+print(sms)
+logging.debug(sms)
+
 # create socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((host, port))
 s.listen(5)
 sock, addr = s.accept()
-
-#
-sms = "Starting on host " + str(host) + " at port " + str(port)
-print(sms)
-logging.debug(sms)
 
 life = True
 while life:
@@ -45,6 +45,17 @@ while life:
 
     elif buf == "/0":
         sock.send("Nope!")
+
+    elif buf == "CONNECT":
+        id = id + 1
+        sms = name + " became online!"
+        filename = data_path + name + '.txt'
+        f = open((data_path + name + '.txt'), 'a+')
+        f.close()
+
+        print(sms)
+        logging.debug(sms)
+        sock.send("Ты подключился к серверу МЕГАСЕРВЕР. Справка по командам доступка по запросу HELP\nТвое имя - " + name)
 
     elif buf == "GET":
         f = open((data_path + name + '.txt'), 'a+')
@@ -69,17 +80,6 @@ while life:
         f.write(i[1] + "\n")
         f.close()
         sock.send("Done.")
-
-    elif buf.startswith("CONNECT"):
-        id = id + 1
-        sms = name + " became online!"
-        filename = data_path + name + '.txt'
-        f = open((data_path + name + '.txt'), 'a+')
-        f.close()
-
-        print(sms)
-        logging.debug(sms)
-        sock.send("Ты подключился к серверу МЕГАСЕРВЕР. Справка по командам доступка по запросу HELP\nТвое имя - " + name)
 
     elif buf.startswith("SETNAME "):
         i = buf.split(" ", 1)

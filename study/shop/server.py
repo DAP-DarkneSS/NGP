@@ -5,24 +5,46 @@ import socket
 from settings import *
 import threading
 
+# general good class
 class GoodClass:
-    def __init__(self, good_name, quantity):
+    def __init__(self, quantity, good_name = "Unknown"):
         self.good_name = good_name
         self.quantity = quantity
 
-    def buyIt(self, quantity2buy = 1):
-        if self.quantity >= quantity2buy:
-            self.quantity -= quantity2buy
-            return(True)
-        else:
-            return(False)
+    def buyIt(self, quantity2buy):
+        try:
+            self.numquantity2buy = float(quantity2buy)
+            if self.quantity >= self.numquantity2buy:
+                self.quantity -= self.numquantity2buy
+                self.text2return = "Thanks for your purchase!"
+            else:
+                self.text2return = "Sorry: there are no enough " + self.good_name + ". " + str(self.quantity) + " of " + self.good_name + " left over."
+        except ValueError:
+            self.text2return = "Sorry: couldn't buy " + quantity2buy + " of " + self.good_name + "."
+        return(self.text2return)
 
-    def getName(self):
-        return(self.good_name)
+# specific good classes
+class Apple(GoodClass):
+    def __init__(self, quantity, good_name = "Apple"):
+        self.good_name = good_name
+        self.quantity = quantity
 
-    def getQuantity(self):
-        return(self.quantity)
+class Banana(GoodClass):
+    def __init__(self, quantity, good_name = "Banana"):
+        self.good_name = good_name
+        self.quantity = quantity
 
+class Lemon(GoodClass):
+    def __init__(self, quantity, good_name = "Lemon"):
+        self.good_name = good_name
+        self.quantity = quantity
+
+class Orange(GoodClass):
+    def __init__(self, quantity, good_name = "Orange"):
+        self.good_name = good_name
+        self.quantity = quantity
+
+# socket connection thread class
 class Connect(threading.Thread):
     def __init__(self, sock, addr):
         self.sock = sock
@@ -49,7 +71,7 @@ class Connect(threading.Thread):
             elif self.socket_buffer == "GET":
                 self.text2return = ""
                 for self.i in goods2sell:
-                    self.text2return += "\n" + self.i.getName() + "\t" + str(self.i.getQuantity())
+                    self.text2return += "\n" + self.i.good_name + "\t" + str(self.i.quantity)
                 self.sock.send("You could buy:" + self.text2return)
                     
 
@@ -63,14 +85,11 @@ class Connect(threading.Thread):
                 self.list2buy = self.socket_buffer.split(" ")
                 self.text2return = ""
                 for self.i in goods2sell:
-                    if self.i.getName() == self.list2buy[1]:
+                    if self.i.good_name == self.list2buy[1]:
                         try:
-                            if self.i.buyIt(float(self.list2buy[2])):
-                                self.text2return = "Thanks for your purchase!"
-                            else:
-                                self.text2return = "Sorry: there are no enough " + self.list2buy[1] + ". " + str(self.i.getQuantity()) + " of " + self.list2buy[1] + " left over."
-                        except ValueError:
-                            self.text2return = "Sorry: couldn't buy " + self.list2buy[2] + " of " + self.list2buy[1] + "."
+                            self.text2return = self.i.buyIt(self.list2buy[2])
+                        except IndexError:
+                            self.text2return = self.i.buyIt("1")
                 if self.text2return != "":
                     self.sock.send(self.text2return)
                 else:
@@ -89,13 +108,13 @@ class Connect(threading.Thread):
 
 # add googs to sell
 goods2sell =[]
-banana = GoodClass("banana", 5.4)
+banana = Banana(5.4)
 goods2sell.append(banana)
-orange = GoodClass("orange", 7)
+orange = Orange(7)
 goods2sell.append(orange)
-apple = GoodClass("apple", 11.1)
+apple = Apple(11.1)
 goods2sell.append(apple)
-lemon = GoodClass("lemon", 2)
+lemon = Lemon(2)
 goods2sell.append(lemon)
 
 # create socket

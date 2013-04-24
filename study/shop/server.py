@@ -22,22 +22,34 @@ class GoodClass:
         except ValueError:
             self.text2return = "Sorry: couldn't buy " + quantity2buy + " of " + self.good_name + "."
         return(self.text2return)
+    def makeIt(self, action):
+        try:
+            if action == self.action2make:
+                self.text2return = "Action " + self.action2make + " was applied to " + self.good_name + "."
+            else:
+                self.text2return = "Sorry: there is only action " + self.action2make + " for " + self.good_name + "."
+        except AttributeError:
+            self.text2return = "Sorry: there are no actions for " + self.good_name + "."
+        return(self.text2return)
 
 # specific good classes
 class Apple(GoodClass):
     def __init__(self, quantity, good_name = "Apple"):
         self.good_name = good_name
         self.quantity = quantity
+        self.action2make = "WASH"
 
 class Banana(GoodClass):
     def __init__(self, quantity, good_name = "Banana"):
         self.good_name = good_name
         self.quantity = quantity
+        self.action2make = "CLEAN"
 
 class Lemon(GoodClass):
     def __init__(self, quantity, good_name = "Lemon"):
         self.good_name = good_name
         self.quantity = quantity
+        self.action2make = "SUGAR"
 
 class Orange(GoodClass):
     def __init__(self, quantity, good_name = "Orange"):
@@ -90,6 +102,17 @@ class Connect(threading.Thread):
                             self.text2return = self.i.buyIt(self.list2buy[2])
                         except IndexError:
                             self.text2return = self.i.buyIt("1")
+                if self.text2return != "":
+                    self.sock.send(self.text2return)
+                else:
+                    self.sock.send("Sorry: there are no such good. Use GET to get goods list.")
+
+            elif self.socket_buffer.startswith("MAKE "):
+                self.list2buy = self.socket_buffer.split(" ")
+                self.text2return = ""
+                for self.i in goods2sell:
+                    if self.i.good_name == self.list2buy[2]:
+                        self.text2return = self.i.makeIt(self.list2buy[1])
                 if self.text2return != "":
                     self.sock.send(self.text2return)
                 else:
